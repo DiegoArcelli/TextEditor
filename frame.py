@@ -1,4 +1,5 @@
 from Tkinter import *
+from tkFileDialog import *
 
 class MainFrame:
 
@@ -12,13 +13,13 @@ class MainFrame:
         textArea.pack(fill='both', expand='yes')
         menubar = Menu(root)
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open")
-        filemenu.add_command(label="Save")
+        filemenu.add_command(label="Open", command=lambda: self.open_file(textArea))
+        filemenu.add_command(label="Save", command=lambda: self.save_file(textArea))
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
         editmenu = Menu(menubar, tearoff=0)
-        editmenu.add_command(label="Copy", command=MainFrame.copyText(textArea))
+        editmenu.add_command(label="Copy")
         editmenu.add_command(label="Cut")
         editmenu.add_command(label="Paste")
         menubar.add_cascade(label="Edit", menu=editmenu)
@@ -27,6 +28,18 @@ class MainFrame:
         menubar.add_cascade(label="Help", menu=helpmenu)
         root.config(menu=menubar)
 
-    def copyText(text):
-        copied = text.selection_get()
-        print(copied)
+    def save_file(self,text):
+        f = asksaveasfile(mode='w', defaultextension=".txt")
+        if f is None:
+            return
+        save = str(text.get(1.0, END))
+        f.write(save)
+        f.close()
+
+    def open_file(self,text):
+        filename = askopenfilename()
+        print(filename)
+        file = open(filename,"r")
+        data = file.read()
+        text.delete('1.0', END)
+        text.insert(INSERT,data)
