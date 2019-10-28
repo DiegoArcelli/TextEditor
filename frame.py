@@ -1,5 +1,6 @@
 from Tkinter import *
 from tkFileDialog import *
+from dialog import *
 
 class MainFrame:
 
@@ -24,7 +25,7 @@ class MainFrame:
         editmenu.add_command(label="Paste")
         menubar.add_cascade(label="Edit", menu=editmenu)
         helpmenu = Menu(menubar, tearoff=0)
-        helpmenu.add_command(label="About")
+        helpmenu.add_command(label="About", command=lambda: self.about_window(textFrame))
         menubar.add_cascade(label="Help", menu=helpmenu)
         root.config(menu=menubar)
 
@@ -43,3 +44,7 @@ class MainFrame:
         data = file.read()
         text.delete('1.0', END)
         text.insert(INSERT,data)
+
+    def about_window(self,parent):
+        d = Dialog(parent)
+        parent.wait_window(d.top)
