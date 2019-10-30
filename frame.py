@@ -1,5 +1,6 @@
 from Tkinter import *
 from tkFileDialog import *
+import webbrowser
 
 class MainFrame:
 
@@ -57,9 +58,11 @@ class MainFrame:
         file = open("about","r")
         data = file.read()
         l = Label(top, text=data)
-        l.pack(pady=5,padx=5)
+        l.pack()
+        url = Label(top, text="GitHub Repository", fg="blue", cursor="hand2")
+        url.pack(padx=5)
+        url.bind("<Button-1>", lambda x: webbrowser.open_new("https://github.com/DiegoArcelli/TextEditor"))
         parent.wait_window(top)
-
 
     def exit(self, parent):
         top = self.top = Toplevel(parent)
