@@ -5,16 +5,20 @@ import webbrowser
 class MainFrame:
 
     root = None
+    textArea = None
+    fontSize = None
 
-    def __init__(self, root):
+    def __init__(self, root, fontSize):
         self.root = root
+        self.fontSize = fontSize
         textFrame = Frame(root)
         scroll = Scrollbar(textFrame)
         scroll.pack(side=RIGHT, fill=Y)
-        textArea = Text(textFrame,yscrollcommand=scroll.set)
+        textArea = Text(textFrame,yscrollcommand=scroll.set,font=("Helvetica", fontSize))
         scroll.config(command=textArea.yview)
         textFrame.pack(fill='both', expand='yes')
-        textArea.pack(fill='both', expand='yes')
+        self.textArea = textArea
+        self.textArea.pack(fill='both', expand='yes')
         menubar = Menu(root)
         filemenu = Menu(menubar, tearoff=0)
         filemenu.add_command(label="Open", command=lambda: self.open_file(textArea))
@@ -31,10 +35,13 @@ class MainFrame:
         helpmenu.add_command(label="About", command=lambda: self.about_window(textFrame))
         menubar.add_cascade(label="Help", menu=helpmenu)
         viewmenu = Menu(menubar, tearoff=0)
-        viewmenu.add_command(label="Zoom +", command=lambda: self.increaseTextSize(textFrame))
-        viewmenu.add_command(label="Zoom -")
+        viewmenu.add_command(label="Zoom +", command=lambda: self.changeTextSize(textFrame,scroll,1))
+        viewmenu.add_command(label="Zoom -", command=lambda: self.changeTextSize(textFrame,scroll,-1))
         menubar.add_cascade(label="View", menu=viewmenu)
         root.config(menu=menubar)
+        root.bind('<Control-c>', lambda x: self.copy())
+        root.bind('<Control-x>', lambda x: self.cut())
+        root.bind('<Control-v>', lambda x: self.paste())
 
     def save_file(self,text):
         f = asksaveasfile(mode='w', defaultextension=".txt")
@@ -60,7 +67,7 @@ class MainFrame:
         l = Label(top, text=data)
         l.pack()
         url = Label(top, text="GitHub Repository", fg="blue", cursor="hand2")
-        url.pack(padx=5)
+        url.pack()
         url.bind("<Button-1>", lambda x: webbrowser.open_new("https://github.com/DiegoArcelli/TextEditor"))
         parent.wait_window(top)
 
@@ -74,3 +81,26 @@ class MainFrame:
         b2 = Button(top, text="No", command=top.destroy)
         b2.pack(pady=5)
         parent.wait_window(top)
+
+    def copy(self, event=None):
+        self.clipboard_clear()
+        text = self.get("sel.first", "sel.last")
+        self.clipboard_append(text)
+
+    def cut(self, event):
+        self.copy()
+        self.delete("sel.first", "sel.last")
+
+    def paste(self, event):
+        text = self.selection_get(selection='CLIPBOARD')
+        self.insert('insert', text)
+
+    def changeTextSize(self,parent,scroll,val):
+        text = self.textArea.get("1.0",END)
+        self.textArea.destroy()
+        self.fontSize+=val
+        self.textArea = Text(parent,yscrollcommand=scroll.set, font=("Helvetica", self.fontSize))
+        parent.pack(fill='both', expand='yes')
+        parent.pack(fill='both', expand='yes')
+        self.textArea.insert(END,text)
+        self.textArea.pack(fill='both', expand='yes')
