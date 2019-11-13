@@ -7,14 +7,16 @@ class MainFrame:
     root = None
     textArea = None
     fontSize = None
+    openedFile = None
 
     def __init__(self, root, fontSize):
         self.root = root
         self.fontSize = fontSize
+        self.openedFile = None
         textFrame = Frame(root)
         scroll = Scrollbar(textFrame)
         scroll.pack(side=RIGHT, fill=Y)
-        textArea = Text(textFrame,yscrollcommand=scroll.set,font=("Helvetica", fontSize))
+        textArea = Text(textFrame,yscrollcommand=scroll.set,font=("Ubuntu", fontSize))
         scroll.config(command=textArea.yview)
         textFrame.pack(fill='both', expand='yes')
         self.textArea = textArea
@@ -38,22 +40,39 @@ class MainFrame:
         viewmenu.add_command(label="Zoom +", command=lambda: self.changeTextSize(textFrame,scroll,1))
         viewmenu.add_command(label="Zoom -", command=lambda: self.changeTextSize(textFrame,scroll,-1))
         menubar.add_cascade(label="View", menu=viewmenu)
+        #menubar.config(font=("Ubuntu ",8))
         root.config(menu=menubar)
-        root.bind('<Control-c>', lambda x: self.copy())
-        root.bind('<Control-x>', lambda x: self.cut())
-        root.bind('<Control-v>', lambda x: self.paste())
+        '''root.bind('<Control-c>', lambda e: self.copy())
+        root.bind('<Control-x>', lambda e: self.cut())
+        root.bind('<Control-v>', lambda e: self.paste())'''
+        root.bind('<Control-o>', lambda e: self.open_file(textArea))
+        root.bind('<Control-O>', lambda e: self.open_file(textArea))
+        root.bind('<Control-s>', lambda e: self.save_file(textArea))
+        root.bind('<Control-S>', lambda e: self.save_file(textArea))
+        root.bind('<Control-plus>', lambda e: self.changeTextSize(textFrame,scroll,1))
+        root.bind('<Control-minus>', lambda e: self.changeTextSize(textFrame,scroll,-1))
+        root.bind('<Control-a>', lambda e: self.select_all(textArea))
+        root.bind('<Control-A>', lambda e: self.select_all(textArea))
+        root.bind('<Control-e>', lambda e: self.exit(textFrame))
+        root.bind('<Control-E>', lambda e: self.exit(textFrame))
 
     def save_file(self,text):
-        f = asksaveasfile(mode='w', defaultextension=".txt")
-        if f is None:
-            return
-        save = str(text.get(1.0, END))
-        f.write(save)
-        f.close()
+        if self.openedFile == None:
+            f = asksaveasfile(mode='w', defaultextension=".txt")
+            if f is None:
+                return
+            save = str(text.get(1.0, END))
+            f.write(save)
+            f.close()
+        else:
+            save = str(text.get(1.0, END))
+            f = open(self.openedFile, "w")
+            f.write(save)
+            f.close()
 
     def open_file(self,text):
         filename = askopenfilename()
-        print(filename)
+        self.openedFile = filename
         file = open(filename,"r")
         data = file.read()
         text.delete('1.0', END)
@@ -95,11 +114,16 @@ class MainFrame:
         text = self.selection_get(selection='CLIPBOARD')
         self.insert('insert', text)
 
+    def select_all(self, text):
+        text.tag_add(SEL, "1.0", END)
+        text.mark_set(INSERT, "1.0")
+        text.see(INSERT)
+
     def changeTextSize(self,parent,scroll,val):
         text = self.textArea.get("1.0",END)
         self.textArea.destroy()
         self.fontSize+=val
-        self.textArea = Text(parent,yscrollcommand=scroll.set, font=("Helvetica", self.fontSize))
+        self.textArea = Text(parent,yscrollcommand=scroll.set, font=("Ubuntu", self.fontSize))
         parent.pack(fill='both', expand='yes')
         parent.pack(fill='both', expand='yes')
         self.textArea.insert(END,text)
