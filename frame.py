@@ -58,7 +58,7 @@ class MainFrame:
 
     def save_file(self,text):
         if self.openedFile == None:
-            f = asksaveasfile(mode='w', defaultextension=".txt")
+            f = asksaveasfile(mode='w')
             if f is None:
                 return
             save = str(text.get(1.0, END))
@@ -77,6 +77,8 @@ class MainFrame:
         data = file.read()
         text.delete('1.0', END)
         text.insert(INSERT,data)
+        obj = filename.split("/")
+        self.root.title(obj[len(obj)-1])
 
     def about_window(self,parent):
         top = self.top = Toplevel(parent)
@@ -101,10 +103,11 @@ class MainFrame:
         b2.pack(pady=5)
         parent.wait_window(top)
 
-    def copy(self, event=None):
+    def copy(self, text):
         self.clipboard_clear()
         text = self.get("sel.first", "sel.last")
         self.clipboard_append(text)
+
 
     def cut(self, event):
         self.copy()
