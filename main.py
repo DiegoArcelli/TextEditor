@@ -1,9 +1,9 @@
-from Tkinter import *
-from frame import *
+import tkinter as tk
+import frame
 
-root = Tk()
+root = tk.Tk()
 root.title("Titleless file")
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 root.geometry("%dx%d+0+0" % (w, h))
-frame = MainFrame(root,12)
+mainFrame = frame.MainFrame(root,12)
 root.mainloop()
