@@ -39,8 +39,8 @@ class MainFrame:
         root.config(menu=menubar)
         root.bind('<Control-o>', lambda e: self.open_file())
         root.bind('<Control-O>', lambda e: self.open_file())
-        root.bind('<Control-s>', lambda e: self.save_file(textArea))
-        root.bind('<Control-S>', lambda e: self.save_file(textArea))
+        root.bind('<Control-s>', lambda e: self.save_file())
+        root.bind('<Control-S>', lambda e: self.save_file())
         root.bind('<Control-plus>', lambda e: self.changeTextSize(textFrame,scroll,1))
         root.bind('<Control-minus>', lambda e: self.changeTextSize(textFrame,scroll,-1))
         root.bind('<Control-a>', lambda e: self.select_all())
@@ -52,16 +52,24 @@ class MainFrame:
         root.bind('<Control-l>', lambda e: self.shortcuts_window(textFrame))
         root.bind('<Control-L>', lambda e: self.shortcuts_window(textFrame))
 
-    def save_file(self,text):
+    def save_file(self):
         if self.openedFile == None:
             f = fd.asksaveasfile(mode='w')
             if f is None:
                 return
-            save = str(text.get(1.0, fd.END))
+            save = str(self.textArea.get(1.0, fd.END))
+            filename = f.name
             f.write(save)
             f.close()
+            self.openedFile = filename
+            file = open(filename,"r")
+            data = file.read()
+            self.textArea.delete('1.0', 'end')
+            self.textArea.insert(tk.INSERT,data)
+            obj = filename.split("/")
+            self.root.title(obj[len(obj)-1])
         else:
-            save = str(text.get(1.0, fd.END))
+            save = str(self.textArea.get(1.0, fd.END))
             f = open(self.openedFile, "w")
             f.write(save)
             f.close()
