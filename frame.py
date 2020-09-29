@@ -4,11 +4,6 @@ import webbrowser as wb
 
 class MainFrame:
 
-    root = None
-    textArea = None
-    fontSize = None
-    openedFile = None
-
     def __init__(self, root, fontSize):
         self.root = root
         self.fontSize = fontSize
@@ -23,8 +18,8 @@ class MainFrame:
         self.textArea.pack(fill='both', expand='yes')
         menubar = tk.Menu(root)
         filemenu = tk.Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open", command=lambda: self.open_file(textArea))
-        filemenu.add_command(label="Save", command=lambda: self.save_file(textArea))
+        filemenu.add_command(label="Open", command=lambda: self.open_file())
+        filemenu.add_command(label="Save", command=lambda: self.save_file())
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=lambda: self.exit(textFrame))
         menubar.add_cascade(label="File", menu=filemenu)
@@ -42,8 +37,8 @@ class MainFrame:
         viewmenu.add_command(label="Zoom -", command=lambda: self.changeTextSize(textFrame,scroll,-1))
         menubar.add_cascade(label="View", menu=viewmenu)
         root.config(menu=menubar)
-        root.bind('<Control-o>', lambda e: self.open_file(textArea))
-        root.bind('<Control-O>', lambda e: self.open_file(textArea))
+        root.bind('<Control-o>', lambda e: self.open_file())
+        root.bind('<Control-O>', lambda e: self.open_file())
         root.bind('<Control-s>', lambda e: self.save_file(textArea))
         root.bind('<Control-S>', lambda e: self.save_file(textArea))
         root.bind('<Control-plus>', lambda e: self.changeTextSize(textFrame,scroll,1))
@@ -71,13 +66,13 @@ class MainFrame:
             f.write(save)
             f.close()
 
-    def open_file(self,text):
+    def open_file(self):
         filename = fd.askopenfilename()
         self.openedFile = filename
         file = open(filename,"r")
         data = file.read()
-        text.delete('1.0', fd.END)
-        text.insert(fd.INSERT,data)
+        self.textArea.delete('1.0', 'end')
+        self.textArea.insert(tk.INSERT,data)
         obj = filename.split("/")
         self.root.title(obj[len(obj)-1])
 
@@ -116,13 +111,13 @@ class MainFrame:
         parent.wait_window(top)
 
     def select_all(self):
-        self.textArea.tag_add(fd.SEL, "1.0", fd.END)
-        self.textArea.mark_set(fd.INSERT, "1.0")
-        self.textArea.see(fd.INSERT)
+        self.textArea.tag_add(tk.SEL, "1.0", tk.END)
+        self.textArea.mark_set(tk.INSERT, "1.0")
+        self.textArea.see(tk.INSERT)
 
     def changeTextSize(self,parent,scroll,val):
         if self.fontSize > 8 and self.fontSize < 51:
-            text = self.textArea.get("1.0",fd.END)
+            text = self.textArea.get("1.0",tk.END)
             self.textArea.destroy()
             self.fontSize+=val
             self.textArea = tk.Text(parent, yscrollcommand=scroll.set, font=("Helvetica", self.fontSize))
